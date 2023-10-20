@@ -1,4 +1,20 @@
-* 
+* Describe toehunetouh
 :PROPERTIES:
 :CATEGORY: flash
+:REVISION_DATE: 2023-10-22
 :END:
+** Answer
+* something
+:PROPERTIES:
+:CATEGORY: flash
+:REVISION_DATE: 2023-10-22
+:END:
+** Answer
+
+
+
+
+
+
+
+(get-flash-cards "./flash-cards.org")

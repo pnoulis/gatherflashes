@@ -1,9 +1,98 @@
 * About
 This file is used a project management tool for the gatherflashes program.
 * Resources
+** Moving point past a property drawer
+https://www.reddit.com/r/orgmode/comments/hrxc6a/move_to_first_line_after_drawers/
+
 * Issues
-* TODO
+* todo
 * Implementing
 * Testing
 * Failed test
-* DONE
+* done
+* Notepad
+** Resources
+*** Information about reading input in emacs
+input streams
+*** Information about printing input in emacs
+output streams
+*** Information about interactive functions
+interactive call
+** declare a function argument as optional
+*** Answer
+#+begin_src elisp
+  (defun somefunc (&optional optionalArgument))
+#+end_src
+** declare a function with a variable number of arguments
+#+begin_src elisp
+  (defun somefunc (&rest ...args))
+#+end_src
+** define a function that writes its arguments to the minibuffer
+** Give a short explanation of the terms, read syntax and printed representation.
+*** Answer
+*Reading* a lisp object means parsing a lisp expression in textual form and
+producing a corresponding lisp object. this is how lisp programs get into lisp
+from files of lisp code. We call the text the *read syntax* of the object.
+For example, the text '(a . 5)' is the read syntax for a cons cell whose CAR is
+'a' and whose CDR is the number 5.
+
+*Printing* a lisp object means producing text that represents that
+object; converting the object to its *printed representation*. Printing the cons
+cell described above produces the text '(a . 5)'.
+** Which objects do not have equivalent read syntaxes and printed representations
+*** Answer
+- buffers
+- windows
+- frames
+- subprocesses
+- markers
+** Define a non interactive function that reads the user's name from the minibuffer and prints it to the minibuffer
+*** Answer
+
+#+begin_src elisp
+  ;; "t" used as an input stream means that the input is read from the minibuffer.
+  ;; "t" used as an output stream means that the output is displayed in the echo area.
+  (defun my-get-name ()
+    "Read the user's name from the minibuffer and write it back to the echo area"
+    (let ((name (read t)))
+      (print name)))
+
+  (my-get-username)
+#+end_src
+
+** Define an interactive function that reads the user's name from the minibuffer and prints it to the minibuffer
+*** Answer
+
+#+begin_src elisp
+  ;; "t" used as an input stream means that the input is read from the minibuffer
+  ;; "t" used as an output stream means that the output is displayed in the echo area
+  (defun my-interactive-get-name (name)
+    "Read interactively the user's name from the minibuffer and write it back to the echo area"
+    (interactive "sWhat is your name: ")
+    (print (concat "Hi " name)))
+#+end_src
+
+** What is the signature of the interactive function, explain its arguments and operations
+*** Answer
+#+begin_src elisp
+  (interactive &optional arg-descriptor &rest modes)
+#+end_src
+
+** insert-flash-card, keep the property drawer open
+(defun insert-flash-card(title)
+  "Create a new flash-card"
+  (interactive "stitle: ")
+  (org-insert-heading '(4) nil t)
+  (insert title)
+  (newline-and-indent)
+  (org-insert-property-drawer)
+  (forward-line -1)
+  (org-fold-hide-drawer-toggle)
+  (org-entry-put (point) "CATEGORY" "flash")
+  (org-entry-put (point) "REVISION_DATE" "rev date")
+  (end-of-line 4)
+  (org-insert-subheading 1)
+  (insert "Answer")
+  (newline-and-indent)
+  )
+
