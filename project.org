@@ -1,0 +1,9 @@
+* About
+This file is used a project management tool for the gatherflashes program.
+* Resources
+* Issues
+* TODO
+* Implementing
+* Testing
+* Failed test
+* DONE
