@@ -19,19 +19,42 @@
   "Non-nil when point is at a flash-card heading")
 
 (defun get-flash-cards(file)
-  "Produce a list of flash-cards found within FILE"
+  "Return the flash-cards found within FILE if any."
+  (interactive)
   ;; visit file
   ;; give the buffer a random name
   ;;(read-file-contents)
-  ;; 
   ;; create a buffer
   ;; copy file into buffer, that is not the same as visiting
   ;; (insert-file-contents filename) -> (absolute filename)
   (set-buffer (get-buffer-create "gatherflashes<VISITING_FILE>"))
   (erase-buffer)
   (insert-file-contents file)
-  ;; get a list of all flash cards
-  )
+  (let ((AST (org-element-parse-buffer))
+        (headlines '()))
+    ;; get a list of all flash cards
+    (goto-char (point-max))
+    (newline)
+    ;; (insert (format "%s" AST))
+    (newline)
+    (newline)
+    (org-element-map AST 'headline
+      (lambda (hl)
+        ;; (insert (format "%s" hl))
+        ;; (insert (format "%s" (org-element-property :title hl)))
+        (when (is-flashcard-p hl)
+          (setq headlines (append headlines (list (get-flashcard-bounds hl))))
+          )))
+    (with-current-buffer (get-buffer-create "tmp2")
+      (dolist (flashcard headlines)
+        (insert-buffer-substring "gatherflashes<VISITING_FILE>" (nth 0 flashcard) (nth 1 flashcard))
+        )
+      )
+    ))
+    
+(defun is-flashcard-p (headline)
+  (string= "flash" (org-element-property :CATEGORY headline)))
 
-
-(defun gather-flash-cards)
+(defun get-flashcard-bounds (flashcard)
+  (list (org-element-property :begin flashcard)
+        (org-element-property :end flashcard)))

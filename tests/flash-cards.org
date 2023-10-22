@@ -4,7 +4,11 @@
 :REVISION_DATE: 2023-10-22
 :END:
 ** Answer
-* something
+What is that
+
+
+
+* brahames
 :PROPERTIES:
 :CATEGORY: flash
 :REVISION_DATE: 2023-10-22
@@ -13,8 +17,13 @@
 
 
 
+* yolos
+:PROPERTIES:
+:CATEGORY: flash
+:REVISION_DATE: 2023-10-22
+:END:
+** Answer
 
 
-
-
+* No thats is not a flashcard
 (get-flash-cards "./flash-cards.org")

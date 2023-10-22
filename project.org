@@ -4,8 +4,11 @@ This file is used a project management tool for the gatherflashes program.
 ** Moving point past a property drawer
 https://www.reddit.com/r/orgmode/comments/hrxc6a/move_to_first_line_after_drawers/
 
+** org-mode parser libaries
+[[https://orgmode.org/worg/dev/org-element-api.html][Org Element API]]
 * Issues
 * todo
+** loop over all headings of an org document, displaying them
 * Implementing
 * Testing
 * Failed test
