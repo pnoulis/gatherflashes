@@ -1,29 +1,27 @@
-* Describe toehunetouh
+* what
 :PROPERTIES:
 :CATEGORY: flash
-:REVISION_DATE: 2023-10-22
+:REVISION_DATE: 2023-10-23T14:31:00
 :END:
 ** Answer
-What is that
+kino
 
-
-
-* brahames
+* hey yolo
 :PROPERTIES:
 :CATEGORY: flash
-:REVISION_DATE: 2023-10-22
+:REVISION_DATE: 2023-10-23T18:49:00
 :END:
 ** Answer
+sdam
 
-
-
-* yolos
+* hey jude
 :PROPERTIES:
 :CATEGORY: flash
-:REVISION_DATE: 2023-10-22
+:REVISION_DATE: 2023-10-23T13:49:00
 :END:
 ** Answer
+salamalecum
 
 
 * No thats is not a flashcard
-(get-flash-cards "./flash-cards.org")
+(write-to-file (get-flash-cards "./flash-cards.org"))
