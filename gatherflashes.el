@@ -27,13 +27,56 @@
       (org-element-map (org-element-parse-buffer) 'headline
         (lambda (headline)
           (when (is-flashcard-p headline)
-            (setq flashcards (append flashcards (list headline))))))
+            ;; (setq flashcards (append flashcards (get-flashcard-bounds headline)))
+            (setq flashcards (append flashcards (list headline)))
+            )))
       flashcards)))
 
+
+(defun simplify-flashcard-node (flashcard)
+  (let ((begin (org-element-property :begin flashcard))
+        (end (org-element-property :end flashcard)))
+    (list :title (org-element-property :raw-value flashcard)
+          :revisions (org-element-property :REVISION_DATE flashcard)
+          :tags (org-element-property :tags flashcard)
+          :begin begin
+          :end end
+          :contents (buffer-substring begin end)
+          )))
+
+(defun copy-flashcards (file)
+  (with-temp-buffer
+    (insert-file-contents file)
+    (let ((flashcards '())
+          (AST (org-element-parse-buffer)))
+      (org-element-map AST 'headline
+        (lambda (headline)
+          (let ((flashcard (simplify-flashcard-node headline)))
+            (with-current-buffer (get-buffer-create "tmp2")
+              (insert (format "%s\n\n\n" flashcard))))
+          )nil nil 'headline)
+      ;; (with-current-buffer (get-buffer-create "tmp2")
+      ;;   (erase-buffer)
+      ;;   (org-element-map AST 'headline
+      ;;     (lambda (headline)
+      ;;       (insert (format "%s:%s\n" 'title (org-element-property :title headline)))
+      ;;       (insert (format "%s:%s\n" 'tags (org-element-property :tags headline)))
+      ;;       (insert (format "%s:%s\n" 'begin (org-element-property :begin headline)))
+      ;;       (insert (format "%s:%s\n" 'end (org-element-property :end headline)))
+      ;;       (insert (format "%s:%s\n" 'revisions (org-element-property :REVISION_DATE headline)))
+      ;;       (newline)
+      ;;       nil)
+
+      ;;     nil nil 'headline))
+      )))
+      
 (defun filter-flash-cards (flashcards)
   (let ((filtered))
-    (dolist (fc flashcards)
-      (when (is-flashcard-up-for-practice-p fc)))))
+    (dolist (flashcard flashcards)
+      (when (is-flashcard-up-for-practice-p flashcard)
+        (setq filtered (append filtered (list flashcard)))))
+    filtered))
+
 ;; (when (and
 ;;        (is-flashcard-p headline)
 ;;        (is-flashcard-up-for-practice-p headline))

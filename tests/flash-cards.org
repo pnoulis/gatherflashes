@@ -1,27 +1,22 @@
-* what
-:PROPERTIES:
-:CATEGORY: flash
-:REVISION_DATE: 2023-10-23T14:31:00
-:END:
-** Answer
-kino
 
-* hey yolo
+* TODO yollo                                                :linux:sys_admin:
 :PROPERTIES:
 :CATEGORY: flash
-:REVISION_DATE: 2023-10-23T18:49:00
+:REVISION_DATE: 2023-10-23T21:57:00
 :END:
-** Answer
-sdam
 
-* hey jude
-:PROPERTIES:
-:CATEGORY: flash
-:REVISION_DATE: 2023-10-23T13:49:00
-:END:
 ** Answer
-salamalecum
+what the hell
 
 
 * No thats is not a flashcard
-(write-to-file (get-flash-cards "./flash-cards.org"))
+no that is not a flashcard
+(filter-flash-cards (get-flash-cards "./flash-cards.org"))
+(write-to-file  (get-flash-cards "./flash-cards.org"))
+
+(get-flash-cards "./flash-cards.org")
+(copy-flashcards "./flash-cards.org")
+(write-to-file (org-element-parse-buffer))
+(org-element-parse-buffer)
+
+(setq someplist '(
