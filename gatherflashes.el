@@ -41,8 +41,9 @@
     (org-element-map AST 'headline
       (lambda (hl)
         ;; (insert (format "%s" hl))
-        ;; (insert (format "%s" (org-element-property :title hl)))
+        (insert (format "%s" (org-element-property :title hl)))
         (when (is-flashcard-p hl)
+          (insert (format "%s" (is-flashcard-up-for-practice-p hl)))
           (setq headlines (append headlines (list (get-flashcard-bounds hl))))
           )))
     (with-current-buffer (get-buffer-create "tmp2")
@@ -55,6 +56,16 @@
 (defun is-flashcard-p (headline)
   (string= "flash" (org-element-property :CATEGORY headline)))
 
+(defun is-flashcard-up-for-practice-p (flashcard)
+  (parse-time-string (org-element-property :REVISION_DATE flashcard))
+  )
+
 (defun get-flashcard-bounds (flashcard)
   (list (org-element-property :begin flashcard)
         (org-element-property :end flashcard)))
+
+
+
+(current-time)
+(date-to-time "2023-10-22")
+(time-less-p (date-to-time "2023-10-22") nil)
