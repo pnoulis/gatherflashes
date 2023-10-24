@@ -8,15 +8,26 @@
 ** Answer
 what the hell
 
+* what
+:PROPERTIES:
+:CATEGORY: flash
+:REVISION_DATE: 2023-10-23T09:54:00
+:END:
+
+** Answer
+
 
 * No thats is not a flashcard
 no that is not a flashcard
-(filter-flash-cards (get-flash-cards "./flash-cards.org"))
-(write-to-file  (get-flash-cards "./flash-cards.org"))
+(filter-flashcards (get-flashcards "./flash-cards.org"))
+(write-to-file  (filter-flashcards (get-flashcards "./flash-cards.org")))
 
-(get-flash-cards "./flash-cards.org")
+(get-flashcards "./flash-cards.org")
+(flashcard-revdate-is-today (flashcard-get-revisions (get-flashcards "./flash-cards.org")))
 (copy-flashcards "./flash-cards.org")
 (write-to-file (org-element-parse-buffer))
 (org-element-parse-buffer)
 
 (setq someplist '(
+
+(flashcard-get-revisions '(:title yollo :revisions what))

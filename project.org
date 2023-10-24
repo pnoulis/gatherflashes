@@ -99,3 +99,63 @@ cell described above produces the text '(a . 5)'.
   (newline-and-indent)
   )
 
+
+** Time functions
+;; (current-time)
+;; (date-to-time "2023-10-22")
+;; (time-less-p (date-to-time "2023-10-22") nil)
+;; (flashcard-revdate-is-today "2023-10-22T13:45:00")
+
+
+;; (current-time-string)
+
+;; (float-time)
+
+
+
+;; ;; Get NOW as a TIMESTAMP
+;; ;; where TIMESTAMP is the seconds since epoch
+;; (time-convert nil 'integer)1698056444
+;; (time-convert (current-time) 'integer)1698056441
+
+;; ;; get NOW as a TIMESTAMP
+;; ;; where TIMESTAMP is in lisp format
+;; (current-time)
+;; (time-convert (current-time) 'list)(25910 18728 787390 752000)
+;; (time-convert nil 'list)(25910 18733 933452 529000)
+
+;; ;; get NOW as a STRING
+;; ;; where STRING is in iso-8601 extended format.
+;; (format-time-string "%FT%T%z" nil)"2023-10-23T13:55:11+0300"
+;; (format-time-string "%FT%T%z" (current-time))"2023-10-23T13:55:07+0300"
+
+;; ;; convert a STRING in iso-8601 extended format
+;; ;; into a TIMESTAMP in lisp format
+;; (iso8601-parse "2023-10-23T13:40:00")
+;; (encode-time (iso8601-parse "2023-10-23T13:40:00"))
+
+;; ;; convert a TIMESTAMP into an ISO8601 extended format
+;; (format-time-string "%FT%T" TIMESTAMP)
+
+;; (current-time-string)"Mon Oct 23 13:37:59 2023"
+
+;; (current-time)(25910 19733 978225 30000)
+
+;; (encode-time (current-time))
+
+;; (encode-time nil)
+
+;; ;; (iso8601-parse (current-time))
+;; (format-time-string "%FT%T" (org-read-date 't 't))
+
+;; (setq iso8601-format-specifier "%FT%T")
+
+;; (setq d1 (flashcard-revdate-to-timestamp (format-time-string iso8601-format-specifier nil)))
+
+
+;; (setq d2 (flashcard-revdate-to-timestamp (format-time-string iso8601-format-specifier nil)))
+
+;; (time-less-p d1 d2)
+
+;; (format-time-string "%d" (current-time))
+
