@@ -99,7 +99,6 @@ cell described above produces the text '(a . 5)'.
   (newline-and-indent)
   )
 
-
 ** Time functions
 ;; (current-time)
 ;; (date-to-time "2023-10-22")
@@ -159,3 +158,31 @@ cell described above produces the text '(a . 5)'.
 
 ;; (format-time-string "%d" (current-time))
 
+
+** Org-element-parse-buffer
+
+returns a list of elements or objects.
+
+Each element is a list conforming to the syntax
+
+(type properties contents)
+
+to get the contents of the element one may use the function
+
+(org-element-contents)
+
+** org-element-interpret-data
+** Create a temporary buffer
+(get
+** Make a buffer current
+(set-buffer "buffervname")
+(set-buffer #buffer)
+** Create a buffer or re-use an already existing one
+(get-buffer-create "gather"
+
+
+** Org motion
+*** next sibling
+(org-forward-heading-same-level)
+*** previous sibling
+(org-backward-heading-same-level)
