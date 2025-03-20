@@ -60,7 +60,7 @@ cell described above produces the text '(a . 5)'.
     (let ((name (read t)))
       (print name)))
 
-  (my-get-username)
+  (my-get-name)
 #+end_src
 
 ** Define an interactive function that reads the user's name from the minibuffer and prints it to the minibuffer
@@ -158,7 +158,6 @@ cell described above produces the text '(a . 5)'.
 
 ;; (format-time-string "%d" (current-time))
 
-
 ** Org-element-parse-buffer
 
 returns a list of elements or objects.
@@ -186,3 +185,11 @@ to get the contents of the element one may use the function
 (org-forward-heading-same-level)
 *** previous sibling
 (org-backward-heading-same-level)
+
+* Gatherflashes
+
+tags + paths -> flashcards
+
+fileA -> buffer -> cache the buffer -> return the buffer
+
+read a string off a buffer?

@@ -2,7 +2,9 @@
 (defconst CACHE_NAME_PREFIX "cache")
 
 (defun get-cache-create (current-stage next-stage-id stagefn &optional force)
-  (let* ((current-stage-path (get-path-or-name current-stage))
+  (let* (
+         (print-circle t)
+         (current-stage-path (get-path-or-name current-stage))
          (current-stage-cache (get-cache-path current-stage-path))
          (current-stage-name (file-name-nondirectory (or current-stage-cache current-stage-path)))
          (next-stage-name (create-stage-name (or (and current-stage-cache (strip-stage-name current-stage-cache)) current-stage-name) next-stage-id))
@@ -31,7 +33,7 @@
         (when (file-exists-p current-stage-path)
           (gatherflashes/message "Current Stage: is a file")
           (insert-file-contents-literally current-stage-path nil nil nil t))
-        (insert (format "%S" (funcall stagefn)))
+        (insert (prin1 (funcall stagefn)))
         (delete-char (- (point-max) (point)))
         (set-cache next-stage-cache (current-buffer)))
       (rename-buffer next-stage-name)

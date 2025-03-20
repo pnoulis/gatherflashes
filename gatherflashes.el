@@ -1,6 +1,8 @@
 ;; -*- lexical-binding: t; -*-
 
-(defun insert-flashcard(title)
+(defconst FLASHCARDDIRS '("~/office"))
+
+(defun flashcards/insert (title)
   "Inserts a new FLASHCARD formatted as an
 org-mode headline into the current buffer"
   (interactive "stitle: ")
@@ -15,229 +17,141 @@ org-mode headline into the current buffer"
   (end-of-line 4)
   (org-insert-subheading 1)
   (insert "Answer")
-  (newline-and-indent)
-  )
+  (newline-and-indent))
 
-(defun get-flashcards (file &optional prune)
-  "Return a LIST of FLASHCARDS found within FILE"
-  (with-temp-buffer
-    (insert-file-contents file)
-    (let ((flashcards '()))
-      (org-element-map (org-element-parse-buffer) 'headline
-        (lambda (headline)
-          (when (is-flashcard-p headline)
-            (setq flashcards (append flashcards (list headline)))))
-        nil nil 'headline)
-      flashcards)))
+(defun flashcards/train (tags &optional path)
+  "Displays a buffer in the current window with all
+flashcards found in PATHS that match TAGS.
 
-(defun prune-flashcard-node (flashcard)
-  "This function ASSUMES that (current-buffer) contains the FLASHCARD
-at positions (org-element-property :begin), (org-element-property :end).
+PATHS is optional. If not provided then the value of
+FLASHCARDDIRS is used.
 
-Given a FLASHCARD node in the AST produced by org-element-parse-buffer
-return a new list containing only needed properties of FLASHCARD.
-"
-  (let ((begin (org-element-property :begin flashcard))
-        (end (org-element-property :end flashcard)))
-    (list :title (org-element-property :raw-value flashcard)
-          :revisions (org-element-property :REVISION_DATE flashcard)
-          :tags (org-element-property :tags flashcard)
-          :begin begin
-          :end end
-          :contents (string-trim (buffer-substring begin end)))))
-
-(defun filter-flashcards (flashcards)
-  (let ((filtered '()))
-    (dolist (flashcard flashcards)
-      (when (is-flashcard-up-for-practice-p flashcard)
-        (setq filtered (append filtered (list flashcard)))))
-    filtered))
-
-(defun write-to-file (any)
-  (with-current-buffer (get-buffer-create "tmp2")
-    (erase-buffer)
-    (insert (format "%s" any))))
-
-(defun is-flashcard-p (headline)
-  "There are 2 types of flashcards scattered arround my filesystem.
-Those that have been created using the insert-flashcard function.
-And the ones created without the insert-flashcard function which
-usually have a subheading whose raw-value is 'Answer'
-"
-  (or (is-new-flashcard headline)
-      (is-old-flashcard headline)))
-
-(defun is-new-flashcard (flashcard)
-  (string-equal-ignore-case "flash" (or (org-element-property :CATEGORY flashcard) "")))
-
-(defun is-old-flashcard (flashcard)
-  (dolist (el (org-element-contents flashcard) isflashcard)
-    (setq isflashcard (string-equal-ignore-case (or (org-element-property :raw-value el) "") "answer"))))
-
-
-(defun is-element-answer (element)
-  (string-equal-ignore-case (or (org-element-property :raw-value element) "") "answer"))
-
-
-(defun is-flashcard-up-for-practice-p (flashcard)
-  (flashcard-revdate-is-today (flashcard-get-revisions flashcard)))
-
-(defun flashcard-revdate-is-today (revdate)
-  "Return 't if REVDATE is TODAY"
-  (string=
-   (format-time-string "%d" (flashcard-revdate-to-timestamp revdate))
-   (format-time-string "%d" (current-time))))
-
-(defun flashcard-get-revisions (flashcard)
-  "Returns all revisions in FLASHCARD"
-  (plist-get flashcard :revisions))
-
-(defun flashcard-revdate-to-timestamp (revdate)
-  "Convert REVDATE from iso-8601 extended format into a
-lisp TIMESTAMP"
-  (encode-time (iso8601-parse revdate)))
-
-(defun flashcard-timestamp-to-revdate (timestamp)
-  "Convert TIMESTAMP to an iso-8601 extended format string: '%FT%T'"
-  (format-time-string "%FT%T" timestamp))
-
-
-
-;; (save-current-buffer
-;; (progn (set-buffer (get-buffer-create "gather"))
-;;        (erase-buffer)
-;;        (insert (org-element-interpret-data (get-flashcards "/home/pnoul/office/nodejs.org")))
-;;        (org-mode))
-;; (switch-to-buffer (get-buffer "gather") '(right))
-;; "gather")
-
-
-;; (get-flashcards "./tests/flash-cards.org")
-
-(defun flashcard-answer ()
-  "Answer the flashcard
-A new Answer entry shall be created.
-That new entry shall include the following properties
-:Date
-"
-  (interactive)
-  (with-output-to-temp-buffer "tmp"
-    (print (string-equal-ignore-case "answer"
-                                     (org-element-property :raw-value (org-element-at-point))))))
-
-(defun flashcard-raw-value ()
-  (interactive)
-  (with-output-to-temp-buffer "tmp"
-      (print (org-element-property :raw-value (org-element-at-point)))))
-
-
-(defun flashcard-is-headline ()
-  (interactive)
-  (with-output-to-temp-buffer "tmp"
-    (print (__flashcard-is-headline (org-element-at-point)))
-    (print (and (is-element-answer (org-element-at-point)) "answer"))))
-
-(defun __flashcard-is-headline (element)
-  (eq 'headline (org-element-type element)))
-
-
-;; org-forward-heading-
-
-
-(defun move-up-until-org-data (headline)
-  (if (eq 'org-data )))
-
-
-(defun flashcard-last-answer (flashcard)
-  (dolist (current flashcard last-answer)
-    (and (string-equal-ignore-case (or (org-element-property :raw-value current) "") "answer")
-         (setq last-answer
-               (cons (org-element-property :begin current)
-                (cons (org-element-property :end current) '()))))))
-
-
-(defun flashcard-get-tree (buffer-or-filename)
-  (if (bufferp buffer-or-filename)
-      (with-current-buffer buffer-or-filename
-        (org-element-parse-buffer))
-    (with-temp-buffer
-      (insert-file-contents buffer-or-filename)
-      (org-element-parse-buffer))))
-
-
-(defun flashcard-find-point (buffer-or-filename)
-  (let ((headline-count 0)
-        (headlines '()))
-    (setq headlines
-          (org-element-map (flashcard-get-tree buffer-or-filename) 'headline
-            (lambda (headline)
-              (setq headline-count (+ 1 headline-count))
-              (when (= 1 headline-count)
-                (org-element-put-property headline :parent nil))
-            nil nil '(org-data)))
-    (cons (cons 'headline-count (cons headline-count '())) headlines))))
-
-(defun flashcard-subs (element)
-  (dolist (sub (org-element-contents element) subs)
-    (setq subs (cons sub subs))))
-
-
-(defun is-at-point (element)
-  "If ELEMENT bounds (point) return it"
-  (and (>= (point) (flashcard-element-begin element))
-       (<= (point) (flashcard-element-end element))
-       element))
-
-(defun flashcard-element-begin (element)
-  "Return the START index of ELEMENT"
-  (org-element-property :begin element))
-
-(defun flashcard-element-end (element)
-  "Return the END index of ELEMENT"
-  (org-element-property :end element))
-
-(defun tmp-write ()
-  (interactive)
-    (with-output-to-temp-buffer "tmp"
-      (print (flashcard-find-point))))
-
-
-(defun write-to-tmp (fn)
-  (interactive "a")
-  (let ((res (funcall fn)))
-    (with-current-buffer (get-buffer-create "tmp2")
+TAGS is optional. If not provided with, ALL flashcards under
+PATHS will be gathered."
+  (interactive
+   (list (read-string "tags (comma separated): ")))
+  (let ((search-path FLASHCARDDIRS)
+        (search-tags (string-split (string-trim tags) "," t))
+        (training-buffer "flashcards")
+        point-question point-answer)
+    (flashcards/log-to-message (format "Train: %s" (list search-path search-tags)))
+    (with-current-buffer (get-buffer-create training-buffer)
       (erase-buffer)
-      ;; (insert (format "%s" res))
-      (insert (format "%s" res))
-      )))
+      (org-mode)
+      (dolist (flashcard (flashcards/get search-path search-tags))
+        (setq point-question (point))
+        (insert (format "%s\n" (plist-get (plist-get flashcard :question) :content)))
+        (insert (format "%s\n" (plist-get (plist-get flashcard :answer) :content)))
+        (setq point-answer (point))
+        (goto-char point-question)
+        (flashcards/promote-flashcard flashcard)
+        (goto-char point-answer))
+      (org-fold-hide-drawer-all)
+      (org-shifttab)
+      (org-shifttab)
+      (goto-char 1)
+      (switch-to-buffer training-buffer))))
 
+(defun flashcards/promote-flashcard (flashcard)
+  "All FLASHCARD questions are promoted to LEVEL 1 and all
+FLASHCARD answers to LEVEL 2 for the purposes of displaying
+them in the training buffer"
+  (let ((level (plist-get (plist-get flashcard :question) :level)))
+    (while (> level 1)
+      (org-promote-subtree)
+      (setq level (- 1 level)))))
 
-(setq data
-      (save-excursion
-        (set-buffer (get-buffer "flash-cards.org"))
-        (flashcard-find-point)))
+(defun flashcards/get (paths tags)
+  "Recursively searches PATHS for flashcards that include TAGS. It completes
+by returning a list of all matched flashcards."
+  (let ((flashcards '()) flashcard matched-tags)
+    (flashcards/map-path-to-buffer
+     paths
+     (lambda (buffer)
+       (org-element-map (org-element-parse-buffer 'headline) 'headline
+         (lambda (headline)
+           (when (and (setq flashcard (flashcards/is-flashcard-p headline))
+                      (setq matched-tags
+                            (or (and (null tags) (org-element-property :tags headline))
+                                (flashcards/get-matching-tags headline tags))))
+             (plist-put flashcard :question
+                        (list
+                         :title (org-element-property :raw-value (plist-get flashcard :question))
+                         :tags matched-tags
+                         :begin (org-element-property :begin (plist-get flashcard :question))
+                         :end (org-element-property :begin (plist-get flashcard :answer))
+                         :level (org-element-property :level (plist-get flashcard :question))))
+             (plist-put flashcard :answer
+                        (list
+                         :title (org-element-property :raw-value (plist-get flashcard :answer))
+                         :begin (org-element-property :begin (plist-get flashcard :answer))
+                         :end (org-element-property :end (plist-get flashcard :answer))
+                         :level (org-element-property :level (plist-get flashcard :answer))))
+             (flashcards/log-to-message (format "Flashcard: %s" flashcard))
 
+             ;; TODO: Right now the actual flashcard is held within
+             ;; the :content property. This means that (flashcard
+             ;; quantity * size) will bog down speed and clog memory
+             ;; if too large of a dataset is found. A solution I can
+             ;; think off the top of my head is lazy loading the
+             ;; flashcard :content as needed. For example, this
+             ;; function would return a list containing the PATH the
+             ;; matched flashcards belong to, including the flashcard
+             ;; METADATA. Upon user request the program would read the
+             ;; substring of the requested PATH with the help of
+             ;; :begin and :end.
+             (plist-put (plist-get flashcard :question) :content
+                        (string-trim (buffer-substring
+                                      (plist-get (plist-get flashcard :question) :begin)
+                                      (plist-get (plist-get flashcard :question) :end))))
+             (plist-put (plist-get flashcard :answer) :content
+                        (string-trim (buffer-substring
+                                      (plist-get (plist-get flashcard :answer) :begin)
+                                      (plist-get (plist-get flashcard :answer) :end))))
+             (setq flashcards (append flashcards (list flashcard)))
+             )))))
+   flashcards))
 
-(write-to-tmp (lambda ()
-                (org-element-map (flashcard-get-tree "./tests/flash-cards.org") 'headline
-                  (lambda (headline)
-                    (car (cdr (cdr (car (org-element-contents headline)))))
-                    )
-                    ;; (car (cdr (cdr (car (org-element-contents
-                    ;;       (org-element-put-property headline :parent nil))))))
-                    ;; )
-                    ;; property
-                    ;; (cdr (car (cdr headline)))
-                  nil 't '(org-data))))
+(defun flashcards/map-path-to-buffer (paths func)
+  (dolist (path paths)
+    (unless (file-exists-p path)
+      (error "Missing path: %s" path))
+    (if (file-directory-p path)
+        (flashcards/map-path-to-buffer (directory-files path t "\\.org$" t) func)
+      (with-current-buffer (find-file-noselect path)
+        (flashcards/log-to-message (format "Reading file: %s" path))
+        (funcall func (current-buffer))))))
 
+(defun flashcards/get-matching-tags (headline tags)
+  "Check if the tags of HEADLINE are included in TAGS.
+Returns the list of matched tags or nil in case of no matches."
+  (let ((matched-tags nil))
+    (dolist (tag (org-element-property :tags headline))
+      (when (member-ignore-case tag tags)
+        (setq matched-tags (cons tag matched-tags))))
+    matched-tags))
 
-(defun flashcard-drawer (element)
-  (car (cdr element)))
-(flashcard-drawer (element)
-                  )
+(defun flashcards/log-to-message (text)
+  (with-current-buffer "*Messages*"
+    (goto-char (point-max))
+    (unless (bolp)
+      (insert "\n"))
+    (insert "(flashcards)-> " text)
+    (goto-char (point-max))))
 
-(org-element-property :property )
+(defun flashcards/is-flashcard-p (headline)
+  "There are 2 types of flashcards scattered arround my filesystem.
+Those created with the '(insert-flashcard) command and those
+manually typed. Both include a subheading titled 'Answer'.
 
+This predicate performs 2 tasks:
 
-;; org-data
-(flashcard-get-tree "./tests/flash-cards.org")
+1. Checks if a heading or one of its children is a flashcard
+2. Parses the flashcard into the :question and :answer part"
+  (let (question answer)
+    (dolist (child (org-element-contents headline))
+      (when (and (eq (org-element-type child) 'headline)
+                 (string-equal-ignore-case (org-element-property :title child) "Answer"))
+        (setq question (org-element-property :parent child))
+        (setq answer child)))
+    (and answer (list :question question :answer answer))))
