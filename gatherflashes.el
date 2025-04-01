@@ -1,6 +1,8 @@
 ;; -*- lexical-binding: t; -*-
 
-(defconst FLASHCARDDIRS '("~/office"))
+(defvar FLASHCARDDIRS '()
+  "A list of directories that will be recursively searched for
+flashcards")
 
 (defun flashcards/insert (title)
   "Inserts a new FLASHCARD formatted as an
@@ -70,9 +72,17 @@ by returning a list of all matched flashcards."
      (lambda (buffer)
        (org-element-map (org-element-parse-buffer 'headline) 'headline
          (lambda (headline)
+
+           ;; TODO: This beauty of a spaghetti clause needs a total remake.
+           ;; It's job is to filter out flashcards that are not a subset
+           ;; of `TAGS'. However, an empty TAGS list is interpreted to mean
+           ;; that all flashcards regardless of TAG should be included in the
+           ;; output.At the same time care is taken for flashcards without any TAGS
+           ;; The expression (cons nil '()) basically ensures that a flashcard without any
+           ;; TAGS will be included in the output.
            (when (and (setq flashcard (flashcards/is-flashcard-p headline))
                       (setq matched-tags
-                            (or (and (null tags) (org-element-property :tags headline))
+                            (or (and (null tags) (or (org-element-property :tags headline) (cons nil '())))
                                 (flashcards/get-matching-tags headline tags))))
              (plist-put flashcard :question
                         (list
@@ -100,6 +110,13 @@ by returning a list of all matched flashcards."
              ;; METADATA. Upon user request the program would read the
              ;; substring of the requested PATH with the help of
              ;; :begin and :end.
+
+             ;; Solution 2: (Much better at first glance)
+             ;; Instead of holding the flashcards in a list simply
+             ;; write them to a file. This function could accept
+             ;; a callback. When the flashcard is ready it would
+             ;; invoke it with the flashcard. This introduces
+             ;; some separation of concerns i guess.
              (plist-put (plist-get flashcard :question) :content
                         (string-trim (buffer-substring
                                       (plist-get (plist-get flashcard :question) :begin)
@@ -112,15 +129,32 @@ by returning a list of all matched flashcards."
              )))))
    flashcards))
 
+;; TODO: Deal with symlinks
+;; TODO: I think when a file is already visited by a Buffer some
+;; unexpected behavior occurs, but have yet to pinpoint exactly what.
+;; TODO: The (directory-files) screws up a lot if the directory contains
+;; something weird like an Emacs recovery files. All this peculiar
+;; cases need to be addressed
 (defun flashcards/map-path-to-buffer (paths func)
   (dolist (path paths)
-    (unless (file-exists-p path)
-      (error "Missing path: %s" path))
-    (if (file-directory-p path)
-        (flashcards/map-path-to-buffer (directory-files path t "\\.org$" t) func)
-      (with-current-buffer (find-file-noselect path)
-        (flashcards/log-to-message (format "Reading file: %s" path))
-        (funcall func (current-buffer))))))
+    (if (not (file-exists-p path))
+        (flashcards/log-to-message (format "Missing path: %s" path))
+      (cond ((file-directory-p path)
+             (flashcards/log-to-message (format "Descending into: %s" path))
+             (flashcards/log-to-message (format "%s" (directory-files path t nil)))
+             (flashcards/map-path-to-buffer
+;; The expression (cdr (cdr ())) removes the first 2 elements from the
+;; (directory-files) list. It is assumed that the first 2 elements
+;; will always be the special dot entries (., ..). Although the Elisp
+;; manual clearly states that the order of directory entries is not
+;; guaranteed to NOT change I must assume they refer to 'actual'
+;; files. Such a removal must take place otherwise this function
+;; enters an infinitely recursive loop.
+              (cdr (cdr (directory-files path t nil))) func))
+            ((string= (file-name-extension path) "org")
+             (with-current-buffer (find-file-noselect path)
+               (flashcards/log-to-message (format "Reading file: %s" path))
+               (funcall func (current-buffer))))))))
 
 (defun flashcards/get-matching-tags (headline tags)
   "Check if the tags of HEADLINE are included in TAGS.
@@ -133,6 +167,9 @@ Returns the list of matched tags or nil in case of no matches."
 
 (defun flashcards/log-to-message (text)
   (with-current-buffer "*Messages*"
+    ;; The *Messages* buffer tends to be in read-only-mode
+    ;; by default
+    (setq inhibit-read-only t)
     (goto-char (point-max))
     (unless (bolp)
       (insert "\n"))
