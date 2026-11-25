@@ -4,7 +4,7 @@ SHELL := /bin/bash
 
 gatherflashes = ./test.el
 
-emacs := /usr/local/bin/emacs
+emacs := /usr/bin/emacs
 
 run:
 	$(emacs) --script $(gatherflashes)

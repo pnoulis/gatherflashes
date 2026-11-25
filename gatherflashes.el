@@ -127,7 +127,7 @@ by returning a list of all matched flashcards."
                                       (plist-get (plist-get flashcard :answer) :end))))
              (setq flashcards (append flashcards (list flashcard)))
              )))))
-   flashcards))
+    flashcards))
 
 ;; TODO: Deal with symlinks
 ;; TODO: I think when a file is already visited by a Buffer some
@@ -143,13 +143,13 @@ by returning a list of all matched flashcards."
              (flashcards/log-to-message (format "Descending into: %s" path))
              (flashcards/log-to-message (format "%s" (directory-files path t nil)))
              (flashcards/map-path-to-buffer
-;; The expression (cdr (cdr ())) removes the first 2 elements from the
-;; (directory-files) list. It is assumed that the first 2 elements
-;; will always be the special dot entries (., ..). Although the Elisp
-;; manual clearly states that the order of directory entries is not
-;; guaranteed to NOT change I must assume they refer to 'actual'
-;; files. Such a removal must take place otherwise this function
-;; enters an infinitely recursive loop.
+              ;; The expression (cdr (cdr ())) removes the first 2 elements from the
+              ;; (directory-files) list. It is assumed that the first 2 elements
+              ;; will always be the special dot entries (., ..). Although the Elisp
+              ;; manual clearly states that the order of directory entries is not
+              ;; guaranteed to NOT change I must assume they refer to 'actual'
+              ;; files. Such a removal must take place otherwise this function
+              ;; enters an infinitely recursive loop.
               (cdr (cdr (directory-files path t nil))) func))
             ((string= (file-name-extension path) "org")
              (with-current-buffer (find-file-noselect path)

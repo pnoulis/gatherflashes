@@ -1,0 +1,7 @@
+I have managed to extract file-wide tags.
+
+I have managed to extract the flashcard nodes out of the abstract syntax tree
+and remove recursive data.
+
+Then next thing to do is filter them based on TAGS the user has selected to work on
+

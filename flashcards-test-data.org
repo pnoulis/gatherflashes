@@ -1,0 +1,20 @@
+#+FILETAGS: ::   types:linux:admin:
+
+* Outline the differences between object-oriented, database-first and domain-driven design :linux:foo:bar:
+:PROPERTIES:
+:CATEGORY: flash
+:REVISION_DATE: 2026-10-20T10:34:00
+:END:
+
+** Answer
+
+yolo
+
+
+* Another flashcard :linux:
+** Answer
+yolo
+
+* 3rd flashcard :notlinux:
+** Answer
+yolo 3
